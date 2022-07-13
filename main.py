@@ -1,10 +1,11 @@
-import discord, os, json, requests, datetime
+import discord, os, json, requests, datetime, pytz
 from keepAlive import keep_alive
 
 # weather app specific configs
 APPID = os.environ['APPID']
 lat = os.environ['lat']
 lon = os.environ['lon']
+tz = pytz.timezone(os.environ['TZ'])
 
 def getWeather(message):
     url = f'https://api.openweathermap.org/data/2.5/onecall?lat={lat}&lon={lon}&exclude=alerts&appid={APPID}'
@@ -24,8 +25,8 @@ def getWeather(message):
     currClouds = round(c['clouds'])
     currWind = round(c['wind_speed'],1)
     currUV = round(c['uvi'],1)
-    sunrise0 = datetime.datetime.fromtimestamp(c['sunrise']).strftime('%H:%M')
-    sunset0 = datetime.datetime.fromtimestamp(c['sunset']).strftime('%H:%M')
+    sunrise0 = datetime.datetime.fromtimestamp(c['sunrise'], tz).strftime('%H:%M')
+    sunset0 = datetime.datetime.fromtimestamp(c['sunset'], tz).strftime('%H:%M')
     timedelta0 = datetime.timedelta(seconds=c['sunset']-c['sunrise'])
     dayLength0 = ':'.join(str(timedelta0).split(':')[:2])
     humidity0 = round(d[0]['humidity'])
