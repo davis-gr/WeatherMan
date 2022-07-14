@@ -1,4 +1,4 @@
-import discord, os, json, requests, datetime, pytz
+import discord, os, json, requests, datetime, pytz, asyncio
 from keepAlive import keep_alive
 
 # weather app specific configs
@@ -7,6 +7,7 @@ lat = os.environ['lat']
 lon = os.environ['lon']
 tz = pytz.timezone(os.environ['TZ'])
 
+
 def getWeather(message):
     url = f'https://api.openweathermap.org/data/2.5/onecall?lat={lat}&lon={lon}&exclude=alerts&appid={APPID}'
     response = requests.get(url)
@@ -14,8 +15,8 @@ def getWeather(message):
     apiResponse = json.loads(response.text)
     # app 
     d = apiResponse['daily']
-    #m = apiResponse['minutely']
-    #h = apiResponse['hourly']
+    # m = apiResponse['minutely']
+    # h = apiResponse['hourly']
     c = apiResponse['current']
 
     precipToday = d[0]['pop']
@@ -45,7 +46,7 @@ def getWeather(message):
         elif precipToday > 0 and precipToday <= 0.25:
             umbrellaMessage = (f"I wouldn't worry about it - {str(round(precipToday*100))}% rain")
         elif precipToday > 0.25 and precipToday <= 0.5:
-            umbrellaMessage = (f"Maybe some sprinkles here and there, take an umbie if you're feeling mīzīgi - {str(round(precipToday*100))}% rain")
+            umbrellaMessage = (f"Maybe some sprinkles here and there, take an umbie if you're feeling scared - {str(round(precipToday*100))}% rain")
         elif precipToday > 0.5 and precipToday <= 0.75:
             umbrellaMessage = (f'You gonna get wet more likely than not - {str(round(precipToday*100))}% rain')
         elif precipToday > 0.75 and precipToday < 1:
@@ -65,11 +66,12 @@ def getWeather(message):
         return todayForecast
 
 # discord bot config
-client = discord.Client()
+client=discord.Client()
 
 @client.event
 async def on_ready():
-  print('We have logged in as {0.user}'.format(client))
+    print('We have logged in as {0.user}'.format(client))
+    await daily_weather()
 
 @client.event
 async def on_message(message):
@@ -91,6 +93,16 @@ async def on_message(message):
 # Blaccuweather -> GIF
     if 'blaccuweather' in message.content.lower():
         await message.channel.send('https://c.tenor.com/ABk_OPaxWd0AAAAC/ollie-williams.gif')
+
+# Daily forecast at 8:00
+async def daily_weather():
+    now = datetime.datetime.now(tz)
+    then = now + datetime.timedelta(days=1)
+    then.replace(hour=8, minute=0)
+    wait_time = (then-now).total_seconds()
+    await asyncio.sleep(wait_time)
+    channel = client.get_channel(int(os.environ['CHANNEL']))
+    await channel.send(getWeather('today'))
 
 keep_alive()
 client.run(os.environ['TOKEN'])
