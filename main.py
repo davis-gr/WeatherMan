@@ -52,7 +52,7 @@ def getWeather(message):
         elif precipToday > 0.75 and precipToday < 1:
             umbrellaMessage = (f"IT'S GONNA RAIN! - {str(round(precipToday*100))}% rain")
         elif precipToday == 1:
-            umbrellaMessage = (f'FUBAR - {str(round(precipToday*100))}% rain')
+            umbrellaMessage = (f"IT'S BAD! - {str(round(precipToday*100))}% rain")
         return umbrellaMessage
 
     elif message == 'rightNow':
