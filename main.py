@@ -107,8 +107,7 @@ async def on_message(message):
 # Daily forecast at 8:00
 async def daily_weather():
     now = datetime.datetime.now(tz)
-    then = now + datetime.timedelta(days=1)
-    then.replace(hour=8, minute=0)
+    then = now.replace(hour=8, minute=0, second = 0) + datetime.timedelta(days=1)
     wait_time = (then-now).total_seconds()
     await asyncio.sleep(wait_time)
     channel = client.get_channel(int(os.environ['CHANNEL']))
