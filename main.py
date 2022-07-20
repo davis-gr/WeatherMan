@@ -36,7 +36,10 @@ def getWeather(message):
     maxTemp0 = round(float(d[0]['temp']['max']-273.15),1)
     windSpeed0 = round(d[0]['wind_speed'])
     clouds0 = round(d[0]['clouds'])
-    rainfall0 = round(d[0]['rain'])
+    try:
+        rainfall0 = round(d[0]['rain'])
+    except KeyError:
+        rainfall0 = 0
     uvi0 = round(d[0]['uvi'],1)
 
     if message == 'umbrellaMessage':
