@@ -60,23 +60,25 @@ def getWeather(message):
 
     elif message == 'rightNow':
         #rightNow
-        rightNow = (f'Current weather:\nTemp: {currTemp}°C, Humidity: {currHumidity}%\nClouds: {currClouds}%, Wind: {currWind}m/s\nUV index: {currUV}\n{currDescr}')
+        rightNow = (f'**Current weather:**\nTemp: {currTemp}°C, Humidity: {currHumidity}%\nClouds: {currClouds}%, Wind: {currWind}m/s\nUV index: {currUV}\n{currDescr}')
         return rightNow
 
     elif message == 'today':
         #todayForecast
-        todayForecast = (f'''Today's weather forecast:\nSunrise: {sunrise0}, Sunset: {sunset0}, Day length: {dayLength0}\nMin temp: {minTemp0}°C, Max temp: {maxTemp0}°C\nMax rain chance: {str(round(precipToday*100))}%, Clouds: {clouds0}%\nRainfall: {rainfall0}mm, UV Index: {uvi0}\nHumidity: {humidity0}%, Wind speed: {windSpeed0}m/s\nSummary: {descr0}''')
+        todayForecast = (f'''**Today's weather forecast:**\nSunrise: {sunrise0}, Sunset: {sunset0}, Day length: {dayLength0}\nMin temp: {minTemp0}°C, Max temp: {maxTemp0}°C\nMax rain chance: {str(round(precipToday*100))}%, Clouds: {clouds0}%\nRainfall: {rainfall0}mm, UV Index: {uvi0}\nHumidity: {humidity0}%, Wind speed: {windSpeed0}m/s\nSummary: {descr0}''')
         return todayForecast
 
     elif message == 'blaccuweather':
         #blaccuweather GIF
         if precipToday > 0.5 and windSpeed0 > 10:
             ollieGif = (f'https://c.tenor.com/BqQ6TQaM8m0AAAAC/donuts-rain.gif')
+            return ollieGif
         elif precipToday > 0.5:
             ollieGif = (f'https://c.tenor.com/KcqtH2ff4kIAAAAC/weather-rain.gif')
+            return ollieGif
         elif precipToday < 10 and windSpeed0 < 8 and maxTemp0 < 27 and clouds0 < 50:
             ollieGif = (f'https://c.tenor.com/ABk_OPaxWd0AAAAC/ollie-williams.gif')
-        return ollieGif
+            return ollieGif
 
 # discord bot config
 client=discord.Client()
@@ -113,11 +115,16 @@ async def daily_weather():
         now = datetime.datetime.now(tz)
         then = now.replace(hour=8, minute=0, second = 0) + datetime.timedelta(days=1)
         wait_time = (then-now).total_seconds()
+        if wait_time > 86400:
+            wait_time -= 86400
         print(wait_time)
         await asyncio.sleep(wait_time)
         channel = client.get_channel(int(os.environ['CHANNEL']))
         await channel.send(getWeather('today'))
-        await channel.send(getWeather('blaccuweather'))
+        try:
+            await channel.send(getWeather('blaccuweather'))
+        except discord.errors.HTTPException:
+            continue
 
 keep_alive()
 client.run(os.environ['TOKEN'])
